@@ -14,4 +14,12 @@ public class IFrameContent extends BlogContent {
     public void setUrl(String url) {
         this.url = url;
     }
+
+    @Override
+    public String toString() {
+        return "IFrameContent{" +
+                "url='" + url + '\'' +
+                ", type=" + type +
+                '}';
+    }
 }
