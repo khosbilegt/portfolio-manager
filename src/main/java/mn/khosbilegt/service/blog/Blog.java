@@ -1,5 +1,7 @@
 package mn.khosbilegt.service.blog;
 
+import mn.khosbilegt.service.blog.content.BlogContent;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
