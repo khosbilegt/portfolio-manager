@@ -5,7 +5,9 @@ import jakarta.inject.Inject;
 import org.jooq.DSLContext;
 
 @ApplicationScoped
-public class BlogService {
+public class PageService {
     @Inject
     DSLContext context;
+
+    public void createBlog() {}
 }

@@ -1,4 +1,4 @@
-package mn.khosbilegt.service.blog;
+package mn.khosbilegt.service.page;
 
 public class Tag {
     private String id;

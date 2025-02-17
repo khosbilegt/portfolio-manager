@@ -1,27 +1,33 @@
-package mn.khosbilegt.service.blog;
-
-import mn.khosbilegt.service.blog.content.BlogContent;
+package mn.khosbilegt.service.page;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Blog {
-    private String id;
+public class Page {
+    private int id;
+    private String key;
     private String title;
-    private String subTitle;
-    private String type;
+    private String subtitle;
     private String thumbnail;
     private LocalDateTime createDate;
     private LocalDateTime lastModifiedDate;
-    private List<BlogContent> contents = new ArrayList<>();
+    private List<PageContent> contents = new ArrayList<>();
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
     }
 
     public String getTitle() {
@@ -32,20 +38,12 @@ public class Blog {
         this.title = title;
     }
 
-    public String getSubTitle() {
-        return subTitle;
+    public String getSubtitle() {
+        return subtitle;
     }
 
-    public void setSubTitle(String subTitle) {
-        this.subTitle = subTitle;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
+    public void setSubtitle(String subtitle) {
+        this.subtitle = subtitle;
     }
 
     public String getThumbnail() {
@@ -72,15 +70,15 @@ public class Blog {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    public List<BlogContent> getContents() {
+    public List<PageContent> getContents() {
         return contents;
     }
 
-    public void setContents(List<BlogContent> contents) {
+    public void setContents(List<PageContent> contents) {
         this.contents = contents;
     }
 
-    public void addContent(BlogContent content) {
+    public void addContent(PageContent content) {
         this.contents.add(content);
     }
 
@@ -90,11 +88,11 @@ public class Blog {
 
     @Override
     public String toString() {
-        return "Blog{" +
-                "id='" + id + '\'' +
+        return "Page{" +
+                "id=" + id +
+                ", key='" + key + '\'' +
                 ", title='" + title + '\'' +
-                ", subTitle='" + subTitle + '\'' +
-                ", type='" + type + '\'' +
+                ", subtitle='" + subtitle + '\'' +
                 ", thumbnail='" + thumbnail + '\'' +
                 ", createDate=" + createDate +
                 ", lastModifiedDate=" + lastModifiedDate +
