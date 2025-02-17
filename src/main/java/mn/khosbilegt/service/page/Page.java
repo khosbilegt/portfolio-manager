@@ -1,12 +1,18 @@
 package mn.khosbilegt.service.page;
 
+import io.vertx.core.json.JsonObject;
+import mn.khosbilegt.jooq.generated.tables.records.PfPageRecord;
+import org.jooq.JSONB;
+
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Page {
     private int id;
     private String key;
+    private String name;
     private String title;
     private String subtitle;
     private String thumbnail;
@@ -20,6 +26,14 @@ public class Page {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getKey() {
@@ -84,6 +98,41 @@ public class Page {
 
     public void removeContent(int index) {
         this.contents.remove(index);
+    }
+
+    public PfPageRecord toNewRecord() {
+        PfPageRecord record = new PfPageRecord();
+        record.setPageName(name);
+        record.setPageKey(key);
+        record.setPageTitle(title);
+        record.setPageSubtitle(subtitle);
+        record.setCreateDate(OffsetDateTime.from(LocalDateTime.now()));
+        record.setLastModifiedDate(OffsetDateTime.from(LocalDateTime.now()));
+        record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
+        return record;
+    }
+
+    public PfPageRecord toUpdateRecord() {
+        PfPageRecord record = new PfPageRecord();
+        record.setPageId(id);
+        record.setPageName(name);
+        record.setPageKey(key);
+        record.setPageTitle(title);
+        record.setPageSubtitle(subtitle);
+        record.setLastModifiedDate(OffsetDateTime.from(LocalDateTime.now()));
+        record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
+        return record;
+    }
+
+    public void update(PfPageRecord record) {
+        this.id = record.getPageId();
+        this.name = record.getPageName();
+        this.key = record.getPageKey();
+        this.title = record.getPageTitle();
+        this.subtitle = record.getPageSubtitle();
+        this.thumbnail = record.getPageThumbnail();
+        this.createDate = record.getCreateDate().toLocalDateTime();
+        this.lastModifiedDate = record.getLastModifiedDate().toLocalDateTime();
     }
 
     @Override
