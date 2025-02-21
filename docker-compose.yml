@@ -1,0 +1,8 @@
+services:
+  app:
+    image: archerdoc13/portfolio-manager
+    container_name: portfolio-manager
+    ports:
+      - "8001:8081"
+    volumes:
+      ./config:/deployments/config
