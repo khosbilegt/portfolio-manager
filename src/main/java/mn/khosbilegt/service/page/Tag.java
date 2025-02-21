@@ -1,16 +1,18 @@
 package mn.khosbilegt.service.page;
 
+import mn.khosbilegt.jooq.generated.tables.records.PfTagRecord;
+
 public class Tag {
-    private String id;
+    private int id;
     private String name;
     private String type;
     private String color;
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
@@ -36,6 +38,30 @@ public class Tag {
 
     public void setColor(String color) {
         this.color = color;
+    }
+
+    public void update(PfTagRecord record) {
+        this.id = record.getTagId();
+        this.name = record.getTagName();
+        this.type = record.getTagType();
+        this.color = record.getTagColor();
+    }
+
+    public PfTagRecord toNewRecord() {
+        PfTagRecord record = new PfTagRecord();
+        record.setTagName(name);
+        record.setTagType(type);
+        record.setTagColor(color);
+        return record;
+    }
+
+    public PfTagRecord toUpdateRecord() {
+        PfTagRecord record = new PfTagRecord();
+        record.setTagId(id);
+        record.setTagName(name);
+        record.setTagType(type);
+        record.setTagColor(color);
+        return record;
     }
 
     @Override

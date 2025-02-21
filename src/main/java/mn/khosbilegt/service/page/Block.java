@@ -1,6 +1,8 @@
 package mn.khosbilegt.service.page;
 
 import io.vertx.core.json.JsonObject;
+import mn.khosbilegt.jooq.generated.tables.records.PfBlockRecord;
+import org.jooq.JSONB;
 
 public class Block {
     private int id;
@@ -29,6 +31,27 @@ public class Block {
 
     public void setBlockDefinition(JsonObject blockDefinition) {
         this.blockDefinition = blockDefinition;
+    }
+
+    public void update(PfBlockRecord record) {
+        this.id = record.getBlockId();
+        this.blockName = record.getBlockName();
+        this.blockDefinition = new JsonObject(record.getDefinition().data());
+    }
+
+    public PfBlockRecord toNewRecord() {
+        PfBlockRecord record = new PfBlockRecord();
+        record.setBlockName(blockName);
+        record.setDefinition(JSONB.valueOf(blockDefinition.encode()));
+        return record;
+    }
+
+    public PfBlockRecord toUpdateRecord() {
+        PfBlockRecord record = new PfBlockRecord();
+        record.setBlockId(id);
+        record.setBlockName(blockName);
+        record.setDefinition(JSONB.valueOf(blockDefinition.encode()));
+        return record;
     }
 
     @Override
