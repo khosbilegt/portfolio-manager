@@ -13,9 +13,7 @@ import mn.khosbilegt.service.page.Tag;
 import org.jboss.logging.Logger;
 import org.jooq.DSLContext;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import static mn.khosbilegt.jooq.generated.Tables.*;
 
@@ -121,8 +119,21 @@ public class PageService {
         LOG.infov("Completed caching [Tags]: {0}", TAGS.size());
     }
 
-    public Collection<Tag> fetchTags() {
-        return TAGS.values();
+    public Collection<Tag> fetchTags(String name, String type) {
+        List<Tag> queriedTags = new ArrayList<>();
+        if (name.isEmpty()) {
+            queriedTags.addAll(TAGS.values());
+        } else {
+            for (Tag tag : TAGS.values()) {
+                if (tag.getName().contains(name)) {
+                    queriedTags.add(tag);
+                }
+            }
+        }
+        if (!type.isEmpty() && !queriedTags.isEmpty()) {
+            queriedTags.removeIf(tag -> !tag.getType().equals(type));
+        }
+        return queriedTags;
     }
 
     public Tag fetchTag(int id) {

@@ -44,8 +44,8 @@ public class PageEndpoint {
 
     @GET
     @Path("/tags")
-    public Collection<Tag> fetchTags() {
-        return pageService.fetchTags();
+    public Collection<Tag> fetchTags(@QueryParam("type") @DefaultValue("") String type, @QueryParam("name") @DefaultValue("") String name) {
+        return pageService.fetchTags(name, type);
     }
 
     @GET
