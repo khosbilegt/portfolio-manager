@@ -6,8 +6,8 @@ import org.jooq.JSONB;
 
 public class Block {
     private int id;
-    private String blockName;
-    private JsonObject blockDefinition;
+    private String name;
+    private JsonObject definition;
 
     public int getId() {
         return id;
@@ -17,40 +17,40 @@ public class Block {
         this.id = id;
     }
 
-    public String getBlockName() {
-        return blockName;
+    public String getName() {
+        return name;
     }
 
-    public void setBlockName(String blockName) {
-        this.blockName = blockName;
+    public void setName(String name) {
+        this.name = name;
     }
 
-    public JsonObject getBlockDefinition() {
-        return blockDefinition;
+    public JsonObject getDefinition() {
+        return definition;
     }
 
-    public void setBlockDefinition(JsonObject blockDefinition) {
-        this.blockDefinition = blockDefinition;
+    public void setDefinition(JsonObject definition) {
+        this.definition = definition;
     }
 
     public void update(PfBlockRecord record) {
         this.id = record.getBlockId();
-        this.blockName = record.getBlockName();
-        this.blockDefinition = new JsonObject(record.getDefinition().data());
+        this.name = record.getBlockName();
+        this.definition = new JsonObject(record.getDefinition().data());
     }
 
     public PfBlockRecord toNewRecord() {
         PfBlockRecord record = new PfBlockRecord();
-        record.setBlockName(blockName);
-        record.setDefinition(JSONB.valueOf(blockDefinition.encode()));
+        record.setBlockName(name);
+        record.setDefinition(JSONB.valueOf(definition.encode()));
         return record;
     }
 
     public PfBlockRecord toUpdateRecord() {
         PfBlockRecord record = new PfBlockRecord();
         record.setBlockId(id);
-        record.setBlockName(blockName);
-        record.setDefinition(JSONB.valueOf(blockDefinition.encode()));
+        record.setBlockName(name);
+        record.setDefinition(JSONB.valueOf(definition.encode()));
         return record;
     }
 
@@ -58,8 +58,8 @@ public class Block {
     public String toString() {
         return "Block{" +
                 "id=" + id +
-                ", blockName='" + blockName + '\'' +
-                ", blockDefinition=" + blockDefinition +
+                ", blockName='" + name + '\'' +
+                ", blockDefinition=" + definition +
                 '}';
     }
 }

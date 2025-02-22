@@ -4,6 +4,7 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import mn.khosbilegt.jooq.generated.tables.records.PfBlockRecord;
 import mn.khosbilegt.jooq.generated.tables.records.PfPageRecord;
 import mn.khosbilegt.jooq.generated.tables.records.PfTagRecord;
@@ -50,7 +51,7 @@ public class PageService {
 
     public Page fetchPage(int id) {
         if (!PAGES.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Page not found");
         }
         return PAGES.get(id);
     }
@@ -86,6 +87,10 @@ public class PageService {
     }
 
     public Page updatePage(int id, Page page) {
+        if (!PAGES.containsKey(id)) {
+            throw new NotFoundException("Page not found");
+        }
+        page.setId(id);
         PfPageRecord pageRecord = context.update(PF_PAGE)
                 .set(page.toUpdateRecord())
                 .where(PF_PAGE.PAGE_ID.eq(id))
@@ -138,7 +143,7 @@ public class PageService {
 
     public Tag fetchTag(int id) {
         if (!TAGS.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Tag not found");
         }
         return TAGS.get(id);
     }
@@ -159,6 +164,10 @@ public class PageService {
     }
 
     public Tag updateTag(int id, Tag tag) {
+        if (!TAGS.containsKey(id)) {
+            throw new NotFoundException("Tag not found");
+        }
+        tag.setId(id);
         PfTagRecord tagRecord = context.update(PF_TAG)
                 .set(tag.toUpdateRecord())
                 .where(PF_TAG.TAG_ID.eq(id))
@@ -166,7 +175,7 @@ public class PageService {
                 .fetchOne();
         if (tagRecord != null) {
             tag.update(tagRecord);
-            TAGS.put(tag.getId(), tag);
+            TAGS.put(id, tag);
             return tag;
         } else {
             throw new RuntimeException("Failed to update tag");
@@ -197,7 +206,7 @@ public class PageService {
 
     public Block fetchBlock(int id) {
         if (!BLOCKS.containsKey(id)) {
-            return null;
+            throw new NotFoundException("Block not found");
         }
         return BLOCKS.get(id);
     }
@@ -217,6 +226,10 @@ public class PageService {
     }
 
     public Block updateBlock(int id, Block block) {
+        if (!BLOCKS.containsKey(id)) {
+            throw new NotFoundException("Block not found");
+        }
+        block.setId(id);
         PfBlockRecord blockRecord = context.update(PF_BLOCK)
                 .set(block.toUpdateRecord())
                 .where(PF_BLOCK.BLOCK_ID.eq(id))

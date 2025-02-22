@@ -6,6 +6,7 @@ import org.jooq.JSONB;
 
 import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +107,8 @@ public class Page {
         record.setPageKey(key);
         record.setPageTitle(title);
         record.setPageSubtitle(subtitle);
-        record.setCreateDate(OffsetDateTime.from(LocalDateTime.now()));
-        record.setLastModifiedDate(OffsetDateTime.from(LocalDateTime.now()));
+        record.setCreateDate(LocalDateTime.now().atZone(ZoneOffset.systemDefault()).toOffsetDateTime());
+        record.setLastModifiedDate(LocalDateTime.now().atZone(ZoneOffset.systemDefault()).toOffsetDateTime());
         record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
         return record;
     }
@@ -119,7 +120,7 @@ public class Page {
         record.setPageKey(key);
         record.setPageTitle(title);
         record.setPageSubtitle(subtitle);
-        record.setLastModifiedDate(OffsetDateTime.from(LocalDateTime.now()));
+        record.setLastModifiedDate(LocalDateTime.now().atZone(ZoneOffset.systemDefault()).toOffsetDateTime());
         record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
         return record;
     }
