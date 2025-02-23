@@ -19,6 +19,7 @@ public class Page {
     private String thumbnail;
     private LocalDateTime createDate;
     private LocalDateTime lastModifiedDate;
+    private List<Tag> tags = new ArrayList<>();
     private List<PageContent> contents = new ArrayList<>();
 
     public int getId() {
@@ -101,6 +102,27 @@ public class Page {
         this.contents.remove(index);
     }
 
+    public void addTag(Tag tag) {
+        this.tags.add(tag);
+    }
+
+    public void removeTag(int id) {
+        for (int i = 0; i < tags.size(); i++) {
+            if (tags.get(i).getId() == id) {
+                tags.remove(i);
+                break;
+            }
+        }
+    }
+
+    public List<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<Tag> tags) {
+        this.tags = tags;
+    }
+
     public PfPageRecord toNewRecord() {
         PfPageRecord record = new PfPageRecord();
         record.setPageName(name);
@@ -120,6 +142,7 @@ public class Page {
         record.setPageKey(key);
         record.setPageTitle(title);
         record.setPageSubtitle(subtitle);
+        record.setPageThumbnail(thumbnail);
         record.setLastModifiedDate(LocalDateTime.now().atZone(ZoneOffset.systemDefault()).toOffsetDateTime());
         record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
         return record;

@@ -42,6 +42,17 @@ public class PageService {
                     page.update(pageRecord);
                     PAGES.put(page.getId(), page);
                 });
+        context.selectFrom(PF_PAGE_TAG)
+                .fetch()
+                .forEach(pageTagRecord -> {
+                    if (PAGES.containsKey(pageTagRecord.getPageId())) {
+                        Page page = PAGES.get(pageTagRecord.getPageId());
+                        if (TAGS.containsKey(pageTagRecord.getTagId())) {
+                            Tag tag = TAGS.get(pageTagRecord.getTagId());
+                            page.addTag(tag);
+                        }
+                    }
+                });
         LOG.infov("Completed caching [Pages]: {0}", PAGES.size());
     }
 
@@ -103,6 +114,44 @@ public class PageService {
             return page;
         } else {
             throw new RuntimeException("Failed to update page");
+        }
+    }
+
+    public Page addTagToPage(int pageId, int tagId) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            if (TAGS.containsKey(tagId)) {
+                Tag tag = TAGS.get(tagId);
+                context.insertInto(PF_PAGE_TAG)
+                        .set(PF_PAGE_TAG.PAGE_ID, pageId)
+                        .set(PF_PAGE_TAG.TAG_ID, tagId)
+                        .execute();
+                page.addTag(tag);
+                return page;
+            } else {
+                throw new NotFoundException("Tag not found");
+            }
+        } else {
+            throw new NotFoundException("Page not found");
+        }
+    }
+
+    public Page removeTagFromPage(int pageId, int tagId) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            if (TAGS.containsKey(tagId)) {
+                Tag tag = TAGS.get(tagId);
+                context.deleteFrom(PF_PAGE_TAG)
+                        .where(PF_PAGE_TAG.PAGE_ID.eq(pageId))
+                        .and(PF_PAGE_TAG.TAG_ID.eq(tagId))
+                        .execute();
+                page.removeTag(tag.getId());
+                return page;
+            } else {
+                throw new NotFoundException("Tag not found");
+            }
+        } else {
+            throw new NotFoundException("Page not found");
         }
     }
 
