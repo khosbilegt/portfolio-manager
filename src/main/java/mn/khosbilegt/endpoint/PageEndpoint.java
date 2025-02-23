@@ -36,11 +36,15 @@ public class PageEndpoint {
         return pageService.updatePage(id, page);
     }
 
-    public Page addTagToPage(int pageId, int tagId) {
+    @PUT
+    @Path("/{pageId}/tag/{tagId}")
+    public Page addTagToPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.addTagToPage(pageId, tagId);
     }
 
-    public Page removeTagFromPage(int pageId, int tagId) {
+    @DELETE
+    @Path("/{pageId}/tag/{tagId}")
+    public Page removeTagFromPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.removeTagFromPage(pageId, tagId);
     }
 
