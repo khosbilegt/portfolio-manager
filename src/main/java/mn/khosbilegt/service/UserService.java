@@ -13,6 +13,8 @@ import mn.khosbilegt.service.user.UserDTO;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jooq.DSLContext;
 
+import java.time.Duration;
+
 import static mn.khosbilegt.jooq.generated.Tables.PF_USER;
 
 @ApplicationScoped
@@ -26,6 +28,7 @@ public class UserService {
         return Jwt.issuer(jwtIssuer)
                 .upn(userId)
                 .groups(role)
+                .expiresIn(Duration.ofHours(24))
                 .sign();
     }
 
@@ -37,7 +40,7 @@ public class UserService {
                     userRecord.setEmail(user.getEmail());
                     userRecord.setUsername(user.getUsername());
                     userRecord.setPassword(encryptedPassword);
-                    userRecord.setType(user.getType());
+                    userRecord.setType("local");
                     userRecord.setRole("user");
                     PfUserRecord insertedRecord = context.insertInto(PF_USER)
                             .set(userRecord)
