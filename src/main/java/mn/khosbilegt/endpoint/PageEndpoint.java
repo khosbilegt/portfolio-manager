@@ -1,5 +1,7 @@
 package mn.khosbilegt.endpoint;
 
+import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -80,27 +82,9 @@ public class PageEndpoint {
 
     @POST
     @Path("/tags")
-//    @RolesAllowed({"admin"})
-    public Tag createTag(@Context SecurityContext ctx, Tag tag) {
-        System.out.println(getResponseString(ctx));
-//        return pageService.createTag(tag);
-        return new Tag();
-    }
-
-    private String getResponseString(SecurityContext ctx) {
-        String name;
-        if (ctx.getUserPrincipal() == null) {
-            name = "anonymous";
-        } else if (!ctx.getUserPrincipal().getName().equals(jwt.getName())) {
-            throw new InternalServerErrorException("Principal and JsonWebToken names do not match");
-        } else {
-            name = ctx.getUserPrincipal().getName();
-        }
-        return String.format("hello %s,"
-                        + " isHttps: %s,"
-                        + " authScheme: %s,"
-                        + " hasJWT: %s",
-                name, ctx.isSecure(), ctx.getAuthenticationScheme(), jwt.getClaimNames() != null);
+    @RolesAllowed({"admin"})
+    public Tag createTag(Tag tag) {
+        return pageService.createTag(tag);
     }
 
     @PATCH

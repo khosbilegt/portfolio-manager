@@ -29,6 +29,7 @@ public class UserService {
                 .upn(userId)
                 .groups(role)
                 .expiresIn(Duration.ofHours(24))
+                .subject(userId)
                 .sign();
     }
 
