@@ -1,10 +1,21 @@
 # portfolio-manager
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
+This project is the backend service being used for the website deployed at <https://khosbilegt.dev> (repository [here](https://github.com/khosbilegt/portfolio-web)), built using Quarkus.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+This project is currently under development...
 
-## Running the application in dev mode
+## Components
+The project consists of the following components at the moment:
+- Page Service: REST API for managing pages, tags and blocks. 
+  - Tag: Tags are the metadata for the blogs and pages. They are used to categorize the blogs and pages.
+  - Page: Pages are the main content of the website. They are used to display the main content of the website, and Tags
+  are used to separate Projects, Blog posts and various other requirements.
+  - Block: Encompasses any blocks of information that may be changed and may be freely fetched to populate 
+  the front-end components. This has no innate connection to the UI and the components must be created manually and 
+  only serves as the data.
+- User Service: JWT-based User Registration and Authentication for RBAC for Admin APIs and commenting on blogs.
+
+## Development
 
 You can run your application in dev mode that enables live coding using:
 
