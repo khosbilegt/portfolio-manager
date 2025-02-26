@@ -28,8 +28,8 @@ public class PageService {
     DSLContext context;
 
     public void init(@Observes StartupEvent ignored) {
-        cachePages();
         cacheTags();
+        cachePages();
         cacheBlocks();
         LOG.infov("Completed initializing [PageService]");
     }
