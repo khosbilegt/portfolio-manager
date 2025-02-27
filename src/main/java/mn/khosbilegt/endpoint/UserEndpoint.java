@@ -21,7 +21,6 @@ public class UserEndpoint {
     @GET
     @Authenticated
     public Uni<Response> fetchUser() {
-        System.out.println(jwt.getSubject());
         return userService.fetchUser(Integer.parseInt(jwt.getSubject()))
                 .map(userDTO -> Response.ok(userDTO).build());
     }
