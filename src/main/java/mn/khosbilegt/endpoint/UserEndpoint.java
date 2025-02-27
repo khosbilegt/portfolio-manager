@@ -1,5 +1,6 @@
 package mn.khosbilegt.endpoint;
 
+import io.quarkus.security.Authenticated;
 import io.smallrye.mutiny.Uni;
 import io.vertx.core.json.JsonObject;
 import jakarta.inject.Inject;
@@ -16,6 +17,14 @@ public class UserEndpoint {
     UserService userService;
     @Inject
     JsonWebToken jwt;
+
+    @GET
+    @Authenticated
+    public Uni<Response> fetchUser() {
+        System.out.println(jwt.getSubject());
+        return userService.fetchUser(Integer.parseInt(jwt.getSubject()))
+                .map(userDTO -> Response.ok(userDTO).build());
+    }
 
     @POST
     @Path("/register")

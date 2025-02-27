@@ -1,5 +1,9 @@
 package mn.khosbilegt.service.user;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import mn.khosbilegt.jooq.generated.tables.records.PfUserRecord;
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDTO {
     private String userId;
     private String username;
@@ -7,6 +11,17 @@ public class UserDTO {
     private String password;
     private String type;
     private String role;
+
+    public UserDTO() {}
+
+    public UserDTO(PfUserRecord record) {
+        this.userId = String.valueOf(record.getUserId());
+        this.username = record.getUsername();
+        this.email = record.getEmail();
+        this.password = null;
+        this.type = record.getType();
+        this.role = record.getRole();
+    }
 
     public String getUserId() {
         return userId;

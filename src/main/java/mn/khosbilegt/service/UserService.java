@@ -93,6 +93,19 @@ public class UserService {
         }
     }
 
+    public Uni<UserDTO> fetchUser(int userId) {
+        return Uni.createFrom().item(() -> {
+            PfUserRecord userRecord = context.selectFrom(PF_USER)
+                    .where(PF_USER.USER_ID.eq(userId))
+                    .fetchOne();
+            if (userRecord != null) {
+                return new UserDTO(userRecord);
+            } else {
+                throw new NotFoundException("User not found");
+            }
+        });
+    }
+
     public void deleteUser(String userId) {
         PfUserRecord userRecord = context.selectFrom(PF_USER)
                 .where(PF_USER.USER_ID.eq(Integer.parseInt(userId)))
