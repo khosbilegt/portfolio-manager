@@ -6,7 +6,7 @@ import jakarta.ws.rs.*;
 import mn.khosbilegt.service.PageService;
 import mn.khosbilegt.service.page.Block;
 import mn.khosbilegt.service.page.Page;
-import mn.khosbilegt.service.page.PageContent;
+import mn.khosbilegt.service.page.PageContentDTO;
 import mn.khosbilegt.service.page.Tag;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -44,6 +44,13 @@ public class PageEndpoint {
         return pageService.updatePage(id, page);
     }
 
+    @PATCH
+    @Path("/{id}/content")
+    @RolesAllowed({"admin"})
+    public Page updatePageContent(@PathParam("id") int id, PageContentDTO content) {
+        return pageService.setPageContents(id, content.getContent());
+    }
+
     @PUT
     @Path("/{pageId}/tag/{tagId}")
     @RolesAllowed({"admin"})
@@ -56,34 +63,6 @@ public class PageEndpoint {
     @RolesAllowed({"admin"})
     public Page removeTagFromPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.removeTagFromPage(pageId, tagId);
-    }
-
-    @PUT
-    @Path("/{pageId}/content")
-    @RolesAllowed({"admin"})
-    public Page addContentToPage(@PathParam("pageId") int pageId, PageContent pageContent) {
-        return pageService.addContentToPage(pageId, pageContent);
-    }
-
-    @PUT
-    @Path("/{pageId}/content/{contentIndex}")
-    @RolesAllowed({"admin"})
-    public Page updateContentOnPage(@PathParam("pageId") int pageId, @PathParam("contentIndex") int contentIndex, PageContent pageContent) {
-        return pageService.updateContentOnPage(pageId, contentIndex, pageContent);
-    }
-
-    @DELETE
-    @Path("/{pageId}/content/{contentIndex}")
-    @RolesAllowed({"admin"})
-    public Page removeContentFromPage(@PathParam("pageId") int pageId, @PathParam("contentIndex") int contentIndex) {
-        return pageService.removeContentFromPage(pageId, contentIndex);
-    }
-
-    @PATCH
-    @Path("/{pageId}/content")
-    @RolesAllowed({"admin"})
-    public Page swapContentPositions(@PathParam("pageId") int pageId, @QueryParam("index1") int index1, @QueryParam("index2") int index2) {
-        return pageService.swapContentIndexes(pageId, index1, index2);
     }
 
     @DELETE
