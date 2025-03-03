@@ -1,15 +1,12 @@
 package mn.khosbilegt.endpoint;
 
-import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
-import jakarta.ws.rs.core.SecurityContext;
 import mn.khosbilegt.service.PageService;
 import mn.khosbilegt.service.page.Block;
 import mn.khosbilegt.service.page.Page;
+import mn.khosbilegt.service.page.PageContent;
 import mn.khosbilegt.service.page.Tag;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -59,6 +56,34 @@ public class PageEndpoint {
     @RolesAllowed({"admin"})
     public Page removeTagFromPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.removeTagFromPage(pageId, tagId);
+    }
+
+    @PUT
+    @Path("/{pageId}/content")
+    @RolesAllowed({"admin"})
+    public Page addContentToPage(@PathParam("pageId") int pageId, PageContent pageContent) {
+        return pageService.addContentToPage(pageId, pageContent);
+    }
+
+    @PUT
+    @Path("/{pageId}/content/{contentIndex}")
+    @RolesAllowed({"admin"})
+    public Page updateContentOnPage(@PathParam("pageId") int pageId, @PathParam("contentIndex") int contentIndex, PageContent pageContent) {
+        return pageService.updateContentOnPage(pageId, contentIndex, pageContent);
+    }
+
+    @DELETE
+    @Path("/{pageId}/content/{contentIndex}")
+    @RolesAllowed({"admin"})
+    public Page removeContentFromPage(@PathParam("pageId") int pageId, @PathParam("contentIndex") int contentIndex) {
+        return pageService.removeContentFromPage(pageId, contentIndex);
+    }
+
+    @PATCH
+    @Path("/{pageId}/content")
+    @RolesAllowed({"admin"})
+    public Page swapContentPositions(@PathParam("pageId") int pageId, @QueryParam("index1") int index1, @QueryParam("index2") int index2) {
+        return pageService.swapContentIndexes(pageId, index1, index2);
     }
 
     @DELETE

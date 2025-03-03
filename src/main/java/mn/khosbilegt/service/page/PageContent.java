@@ -6,17 +6,8 @@ public class PageContent {
     public enum ContentType {
         TEXT, IMAGE, IFRAME, CODE
     }
-    private String id;
     private ContentType contentType;
     private JsonObject definition;
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
-    }
 
     public ContentType getContentType() {
         return contentType;
@@ -32,5 +23,11 @@ public class PageContent {
 
     public void setDefinition(JsonObject definition) {
         this.definition = definition;
+    }
+
+    public JsonObject toJsonObject() {
+        return new JsonObject()
+                .put("contentType", contentType.name())
+                .put("definition", definition);
     }
 }

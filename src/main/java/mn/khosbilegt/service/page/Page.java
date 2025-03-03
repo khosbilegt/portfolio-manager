@@ -1,16 +1,18 @@
 package mn.khosbilegt.service.page;
 
+import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 import mn.khosbilegt.jooq.generated.tables.records.PfPageRecord;
+import org.jboss.logging.Logger;
 import org.jooq.JSONB;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Page {
+    private final Logger LOG = Logger.getLogger("PortfolioManager");
     private int id;
     private String key;
     private String name;
@@ -98,8 +100,19 @@ public class Page {
         this.contents.add(content);
     }
 
+    public void updateContent(int index, PageContent content) {
+        this.contents.set(index, content);
+    }
+
     public void removeContent(int index) {
         this.contents.remove(index);
+    }
+
+    public void swapContentIndexes(int index1, int index2) {
+        PageContent content1 = contents.get(index1);
+        PageContent content2 = contents.get(index2);
+        contents.set(index1, content2);
+        contents.set(index2, content1);
     }
 
     public void addTag(Tag tag) {
@@ -144,7 +157,11 @@ public class Page {
         record.setPageSubtitle(subtitle);
         record.setPageThumbnail(thumbnail);
         record.setLastModifiedDate(LocalDateTime.now().atZone(ZoneOffset.systemDefault()).toOffsetDateTime());
-        record.setPageContents(JSONB.valueOf(new JsonObject().encode()));
+        JsonArray contentsArray = new JsonArray();
+        for (PageContent content : contents) {
+            contentsArray.add(content.toJsonObject());
+        }
+        record.setPageContents(JSONB.valueOf(contentsArray.encode()));
         return record;
     }
 
@@ -157,6 +174,20 @@ public class Page {
         this.thumbnail = record.getPageThumbnail();
         this.createDate = record.getCreateDate().toLocalDateTime();
         this.lastModifiedDate = record.getLastModifiedDate().toLocalDateTime();
+        if (record.getPageContents() != null) {
+            try {
+                JsonArray jsonArray = new JsonArray(record.getPageContents().data());
+                for (int i = 0; i < jsonArray.size(); i++) {
+                    JsonObject jsonObject = jsonArray.getJsonObject(i);
+                    PageContent content = new PageContent();
+                    content.setContentType(PageContent.ContentType.valueOf(jsonObject.getString("contentType")));
+                    content.setDefinition(jsonObject.getJsonObject("definition"));
+                    this.contents.add(content);
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to parse page contents", e);
+            }
+        }
     }
 
     @Override

@@ -10,6 +10,7 @@ import mn.khosbilegt.jooq.generated.tables.records.PfPageRecord;
 import mn.khosbilegt.jooq.generated.tables.records.PfTagRecord;
 import mn.khosbilegt.service.page.Block;
 import mn.khosbilegt.service.page.Page;
+import mn.khosbilegt.service.page.PageContent;
 import mn.khosbilegt.service.page.Tag;
 import org.jboss.logging.Logger;
 import org.jooq.DSLContext;
@@ -150,6 +151,62 @@ public class PageService {
             } else {
                 throw new NotFoundException("Tag not found");
             }
+        } else {
+            throw new NotFoundException("Page not found");
+        }
+    }
+
+    public Page addContentToPage(int pageId, PageContent content) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            page.addContent(content);
+            context.update(PF_PAGE)
+                    .set(page.toUpdateRecord())
+                    .where(PF_PAGE.PAGE_ID.eq(pageId))
+                    .execute();
+            return page;
+        } else {
+            throw new NotFoundException("Page not found");
+        }
+    }
+
+    public Page updateContentOnPage(int pageId, int index, PageContent content) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            page.updateContent(index, content);
+            context.update(PF_PAGE)
+                    .set(page.toUpdateRecord())
+                    .where(PF_PAGE.PAGE_ID.eq(pageId))
+                    .execute();
+            return page;
+        } else {
+            throw new NotFoundException("Page not found");
+        }
+    }
+
+    public Page removeContentFromPage(int pageId, int index) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            page.removeContent(index);
+            context.update(PF_PAGE)
+                    .set(page.toUpdateRecord())
+                    .where(PF_PAGE.PAGE_ID.eq(pageId))
+                    .execute();
+            return page;
+        } else {
+            throw new NotFoundException("Page not found");
+        }
+    }
+
+    public Page swapContentIndexes(int pageId, int index1, int index2) {
+        if (PAGES.containsKey(pageId)) {
+            Page page = PAGES.get(pageId);
+            page.swapContentIndexes(index1, index2);
+            context.update(PF_PAGE)
+                    .set(page.toUpdateRecord())
+                    .where(PF_PAGE.PAGE_ID.eq(pageId))
+                    .execute();
+            return page;
         } else {
             throw new NotFoundException("Page not found");
         }
