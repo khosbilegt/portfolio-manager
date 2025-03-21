@@ -56,8 +56,27 @@ public class PageService {
         LOG.infov("Completed caching [Pages]: {0}", PAGES.size());
     }
 
-    public Collection<Page> fetchPages() {
-        return PAGES.values();
+    public Collection<Page> fetchPages(String includedTags) {
+        if (includedTags.isEmpty()) {
+            return PAGES.values();
+        }
+        List<Page> queriedPages = new ArrayList<>();
+        String[] tagList = includedTags.split(",");
+        for (Page page : PAGES.values()) {
+            boolean contains = false;
+            for (String tag : tagList) {
+                for (Tag pageTag : page.getTags()) {
+                    if (pageTag.getName().equals(tag)) {
+                        contains = true;
+                        break;
+                    }
+                }
+            }
+            if (contains) {
+                queriedPages.add(page);
+            }
+        }
+        return queriedPages;
     }
 
     public Page fetchPage(int id) {
@@ -65,6 +84,13 @@ public class PageService {
             throw new NotFoundException("Page not found");
         }
         return PAGES.get(id);
+    }
+
+    public Page fetchPageByKey(String key) {
+        return PAGES.values().stream()
+                .filter(page -> page.getKey().equals(key))
+                .findFirst()
+                .orElseThrow(() -> new NotFoundException("Page not found"));
     }
 
     public Collection<Page> fetchPagesByTag(int tagId) {

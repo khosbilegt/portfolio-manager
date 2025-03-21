@@ -21,14 +21,20 @@ public class PageEndpoint {
 
     @GET
     @Path("/")
-    public Collection<Page> fetchPages() {
-        return pageService.fetchPages();
+    public Collection<Page> fetchPages(@QueryParam("tags") @DefaultValue("") String includedTags) {
+        return pageService.fetchPages(includedTags);
     }
 
     @GET
     @Path("/{id}")
     public Page fetchPage(@PathParam("id") int id) {
         return pageService.fetchPage(id);
+    }
+
+    @GET
+    @Path("/key/{key}")
+    public Page fetchPageByKey(@PathParam("key") String key) {
+        return pageService.fetchPageByKey(key);
     }
 
     @POST
