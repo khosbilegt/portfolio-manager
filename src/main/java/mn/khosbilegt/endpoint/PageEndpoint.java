@@ -60,14 +60,14 @@ public class PageEndpoint {
     @PUT
     @Path("/{pageId}/tag/{tagId}")
     @RolesAllowed({"admin"})
-    public Page addTagToPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
+    public Tag addTagToPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.addTagToPage(pageId, tagId);
     }
 
     @DELETE
     @Path("/{pageId}/tag/{tagId}")
     @RolesAllowed({"admin"})
-    public Page removeTagFromPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
+    public Tag removeTagFromPage(@PathParam("pageId") int pageId, @PathParam("tagId") int tagId) {
         return pageService.removeTagFromPage(pageId, tagId);
     }
 

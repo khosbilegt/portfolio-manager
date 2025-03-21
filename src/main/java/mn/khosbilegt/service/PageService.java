@@ -13,6 +13,7 @@ import mn.khosbilegt.service.page.Page;
 import mn.khosbilegt.service.page.Tag;
 import org.jboss.logging.Logger;
 import org.jooq.DSLContext;
+import org.jooq.Record;
 
 import java.util.*;
 
@@ -21,7 +22,6 @@ import static mn.khosbilegt.jooq.generated.Tables.*;
 @ApplicationScoped
 public class PageService {
     private final Logger LOG = Logger.getLogger("PortfolioManager");
-    private final Map<Integer, Page> PAGES = new HashMap<>();
     private final Map<Integer, Tag> TAGS = new HashMap<>();
     private final Map<Integer, Block> BLOCKS = new HashMap<>();
     @Inject
@@ -29,68 +29,117 @@ public class PageService {
 
     public void init(@Observes StartupEvent ignored) {
         cacheTags();
-        cachePages();
         cacheBlocks();
         LOG.infov("Completed initializing [PageService]");
     }
 
     public void cachePages() {
-        context.selectFrom(PF_PAGE)
-                .fetch()
-                .forEach(pageRecord -> {
-                    Page page = new Page();
-                    page.update(pageRecord);
-                    PAGES.put(page.getId(), page);
-                });
-        context.selectFrom(PF_PAGE_TAG)
-                .fetch()
-                .forEach(pageTagRecord -> {
-                    if (PAGES.containsKey(pageTagRecord.getPageId())) {
-                        Page page = PAGES.get(pageTagRecord.getPageId());
+//        context.selectFrom(PF_PAGE)
+//                .fetch()
+//                .forEach(pageRecord -> {
+//                    Page page = new Page();
+//                    page.update(pageRecord);
+//                    PAGES.put(page.getId(), page);
+//                });
+//        context.selectFrom(PF_PAGE_TAG)
+//                .fetch()
+//                .forEach(pageTagRecord -> {
+//                    if (PAGES.containsKey(pageTagRecord.getPageId())) {
+//                        Page page = PAGES.get(pageTagRecord.getPageId());
+//                        if (TAGS.containsKey(pageTagRecord.getTagId())) {
+//                            Tag tag = TAGS.get(pageTagRecord.getTagId());
+//                            page.addTag(tag);
+//                        }
+//                    }
+//                });
+//        LOG.infov("Completed caching [Pages]: {0}", PAGES.size());
+    }
+
+    public Collection<Page> fetchPages(String includedTags) {
+        Map<Integer, Page> pages = new HashMap<>();
+        if (includedTags.isEmpty()) {
+            context.selectFrom(PF_PAGE)
+                    .fetch()
+                    .forEach(pageRecord -> {
+                        Page page = new Page();
+                        page.update(pageRecord);
+                        pages.put(page.getId(), page);
+                    });
+            context.selectFrom(PF_PAGE_TAG)
+                    .fetch()
+                    .forEach(pageTagRecord -> {
+                        if (pages.containsKey(pageTagRecord.getPageId())) {
+                            Page page = pages.get(pageTagRecord.getPageId());
+                            if (TAGS.containsKey(pageTagRecord.getTagId())) {
+                                Tag tag = TAGS.get(pageTagRecord.getTagId());
+                                page.addTag(tag);
+                            }
+                        }
+                    });
+        } else {
+            String[] tagList = includedTags.split(",");
+            context.select().from(PF_PAGE)
+                    .leftJoin(PF_PAGE_TAG).on(PF_PAGE.PAGE_ID.eq(PF_PAGE_TAG.PAGE_ID))
+                    .leftJoin(PF_TAG).on(PF_PAGE_TAG.TAG_ID.eq(PF_TAG.TAG_ID))
+                    .where(PF_TAG.TAG_NAME.in(tagList))
+                    .fetch()
+                    .forEach(record -> {
+                        if (!pages.containsKey(record.into(PF_PAGE).getPageId())) {
+                            Page page = new Page();
+                            page.update(record.into(PF_PAGE));
+                            pages.put(page.getId(), page);
+                        } else {
+                            Page page = pages.get(record.into(PF_PAGE).getPageId());
+                            Tag tag = new Tag();
+                            tag.update(record.into(PF_TAG));
+                            page.addTag(tag);
+                        }
+                    });
+        }
+        return pages.values();
+
+    }
+
+    public Page fetchPage(int id) {
+        PfPageRecord pageRecord = context.selectFrom(PF_PAGE)
+                .where(PF_PAGE.PAGE_ID.eq(id))
+                .fetchOne();
+        if (pageRecord != null) {
+            Page page = new Page();
+            page.update(pageRecord);
+            context.selectFrom(PF_PAGE_TAG)
+                    .where(PF_PAGE_TAG.PAGE_ID.eq(id))
+                    .fetch()
+                    .forEach(pageTagRecord -> {
                         if (TAGS.containsKey(pageTagRecord.getTagId())) {
                             Tag tag = TAGS.get(pageTagRecord.getTagId());
                             page.addTag(tag);
                         }
-                    }
-                });
-        LOG.infov("Completed caching [Pages]: {0}", PAGES.size());
-    }
-
-    public Collection<Page> fetchPages(String includedTags) {
-        if (includedTags.isEmpty()) {
-            return PAGES.values();
+                    });
+            return page;
         }
-        List<Page> queriedPages = new ArrayList<>();
-        String[] tagList = includedTags.split(",");
-        for (Page page : PAGES.values()) {
-            boolean contains = false;
-            for (String tag : tagList) {
-                for (Tag pageTag : page.getTags()) {
-                    if (pageTag.getName().equals(tag)) {
-                        contains = true;
-                        break;
-                    }
-                }
-            }
-            if (contains) {
-                queriedPages.add(page);
-            }
-        }
-        return queriedPages;
-    }
-
-    public Page fetchPage(int id) {
-        if (!PAGES.containsKey(id)) {
-            throw new NotFoundException("Page not found");
-        }
-        return PAGES.get(id);
+        throw new NotFoundException("Page not found");
     }
 
     public Page fetchPageByKey(String key) {
-        return PAGES.values().stream()
-                .filter(page -> page.getKey().equals(key))
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("Page not found"));
+        PfPageRecord pageRecord = context.selectFrom(PF_PAGE)
+                .where(PF_PAGE.PAGE_KEY.eq(key))
+                .fetchOne();
+        if (pageRecord != null) {
+            Page page = new Page();
+            page.update(pageRecord);
+            context.selectFrom(PF_PAGE_TAG)
+                    .where(PF_PAGE_TAG.PAGE_ID.eq(page.getId()))
+                    .fetch()
+                    .forEach(pageTagRecord -> {
+                        if (TAGS.containsKey(pageTagRecord.getTagId())) {
+                            Tag tag = TAGS.get(pageTagRecord.getTagId());
+                            page.addTag(tag);
+                        }
+                    });
+            return page;
+        }
+        throw new NotFoundException("Page not found");
     }
 
     public Collection<Page> fetchPagesByTag(int tagId) {
@@ -115,7 +164,6 @@ public class PageService {
                 .fetchOne();
         if (pageRecord != null) {
             page.update(pageRecord);
-            PAGES.put(page.getId(), page);
             LOG.infov("Created page: {0}", page.getId());
             return page;
         } else {
@@ -124,9 +172,6 @@ public class PageService {
     }
 
     public Page updatePage(int id, Page page) {
-        if (!PAGES.containsKey(id)) {
-            throw new NotFoundException("Page not found");
-        }
         page.setId(id);
         PfPageRecord pageRecord = context.update(PF_PAGE)
                 .set(page.toUpdateRecord())
@@ -135,7 +180,6 @@ public class PageService {
                 .fetchOne();
         if (pageRecord != null) {
             page.update(pageRecord);
-            PAGES.put(page.getId(), page);
             LOG.infov("Updated page: {0}", page.getId());
             return page;
         } else {
@@ -143,55 +187,40 @@ public class PageService {
         }
     }
 
-    public Page addTagToPage(int pageId, int tagId) {
-        if (PAGES.containsKey(pageId)) {
-            Page page = PAGES.get(pageId);
+    public Tag addTagToPage(int pageId, int tagId) {
             if (TAGS.containsKey(tagId)) {
                 Tag tag = TAGS.get(tagId);
                 context.insertInto(PF_PAGE_TAG)
                         .set(PF_PAGE_TAG.PAGE_ID, pageId)
                         .set(PF_PAGE_TAG.TAG_ID, tagId)
                         .execute();
-                page.addTag(tag);
-                return page;
+                return tag;
             } else {
                 throw new NotFoundException("Tag not found");
             }
-        } else {
-            throw new NotFoundException("Page not found");
-        }
     }
 
-    public Page removeTagFromPage(int pageId, int tagId) {
-        if (PAGES.containsKey(pageId)) {
-            Page page = PAGES.get(pageId);
+    public Tag removeTagFromPage(int pageId, int tagId) {
             if (TAGS.containsKey(tagId)) {
                 Tag tag = TAGS.get(tagId);
                 context.deleteFrom(PF_PAGE_TAG)
                         .where(PF_PAGE_TAG.PAGE_ID.eq(pageId))
                         .and(PF_PAGE_TAG.TAG_ID.eq(tagId))
                         .execute();
-                page.removeTag(tag.getId());
-                return page;
+                return tag;
             } else {
                 throw new NotFoundException("Tag not found");
             }
-        } else {
-            throw new NotFoundException("Page not found");
-        }
     }
 
     public Page setPageContents(int id, String contents) {
-        if (!PAGES.containsKey(id)) {
-            throw new NotFoundException("Page not found");
-        }
         PfPageRecord pageRecord = context.update(PF_PAGE)
                 .set(PF_PAGE.PAGE_CONTENTS, contents)
                 .where(PF_PAGE.PAGE_ID.eq(id))
                 .returning()
                 .fetchOne();
         if (pageRecord != null) {
-            Page page = PAGES.get(id);
+            Page page = new Page();
             page.update(pageRecord);
             return page;
         } else {
@@ -203,7 +232,6 @@ public class PageService {
         context.deleteFrom(PF_PAGE)
                 .where(PF_PAGE.PAGE_ID.eq(id))
                 .execute();
-        PAGES.remove(id);
     }
 
     public void cacheTags() {
