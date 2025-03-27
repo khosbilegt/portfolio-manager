@@ -10,6 +10,7 @@ import mn.khosbilegt.jooq.generated.tables.records.PfPageRecord;
 import mn.khosbilegt.jooq.generated.tables.records.PfTagRecord;
 import mn.khosbilegt.service.page.Block;
 import mn.khosbilegt.service.page.Page;
+import mn.khosbilegt.service.page.PageCreateDateComparator;
 import mn.khosbilegt.service.page.Tag;
 import org.jboss.logging.Logger;
 import org.jooq.DSLContext;
@@ -31,28 +32,6 @@ public class PageService {
         cacheTags();
         cacheBlocks();
         LOG.infov("Completed initializing [PageService]");
-    }
-
-    public void cachePages() {
-//        context.selectFrom(PF_PAGE)
-//                .fetch()
-//                .forEach(pageRecord -> {
-//                    Page page = new Page();
-//                    page.update(pageRecord);
-//                    PAGES.put(page.getId(), page);
-//                });
-//        context.selectFrom(PF_PAGE_TAG)
-//                .fetch()
-//                .forEach(pageTagRecord -> {
-//                    if (PAGES.containsKey(pageTagRecord.getPageId())) {
-//                        Page page = PAGES.get(pageTagRecord.getPageId());
-//                        if (TAGS.containsKey(pageTagRecord.getTagId())) {
-//                            Tag tag = TAGS.get(pageTagRecord.getTagId());
-//                            page.addTag(tag);
-//                        }
-//                    }
-//                });
-//        LOG.infov("Completed caching [Pages]: {0}", PAGES.size());
     }
 
     public Collection<Page> fetchPages(String includedTags) {
@@ -96,19 +75,24 @@ public class PageService {
                         }
                     });
         }
-        return pages.values();
+        // Order by create_date
+        PriorityQueue<Page> orderedPages = new PriorityQueue<>(new PageCreateDateComparator());
+        orderedPages.addAll(pages.values());
+        return orderedPages;
 
     }
 
     public Page fetchPage(int id) {
         PfPageRecord pageRecord = context.selectFrom(PF_PAGE)
                 .where(PF_PAGE.PAGE_ID.eq(id))
+                .orderBy(PF_PAGE.CREATE_DATE.desc())
                 .fetchOne();
         if (pageRecord != null) {
             Page page = new Page();
             page.update(pageRecord);
             context.selectFrom(PF_PAGE_TAG)
                     .where(PF_PAGE_TAG.PAGE_ID.eq(id))
+                    .orderBy(PF_PAGE.CREATE_DATE.desc())
                     .fetch()
                     .forEach(pageTagRecord -> {
                         if (TAGS.containsKey(pageTagRecord.getTagId())) {
