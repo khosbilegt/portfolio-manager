@@ -92,7 +92,6 @@ public class PageService {
             page.update(pageRecord);
             context.selectFrom(PF_PAGE_TAG)
                     .where(PF_PAGE_TAG.PAGE_ID.eq(id))
-                    .orderBy(PF_PAGE.CREATE_DATE.desc())
                     .fetch()
                     .forEach(pageTagRecord -> {
                         if (TAGS.containsKey(pageTagRecord.getTagId())) {
